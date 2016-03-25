@@ -10,8 +10,6 @@
 class Panzer : public Enemy {
 public:
     Panzer(int dx, int dy, TextureManager* texture_manager, unsigned char** distances, DIRECTION** paths);
-
-    ~Panzer();
 };
 
 #endif //CPHW_TD_PANZER_H

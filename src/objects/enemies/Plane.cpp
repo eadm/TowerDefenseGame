@@ -10,7 +10,3 @@ Plane::Plane(int dx, int dy, TextureManager* texture_manager, unsigned char** di
     this->velocity = 0.15;
     this->initHealth();
 }
-
-Plane::~Plane() {
-    Enemy::~Enemy();
-}

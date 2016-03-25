@@ -10,7 +10,3 @@ Panzer::Panzer(int dx, int dy, TextureManager* texture_manager, unsigned char** 
     this->velocity = 0.05;
     this->initHealth();
 }
-
-Panzer::~Panzer() {
-    Enemy::~Enemy();
-}

@@ -10,8 +10,6 @@
 class Plane : public Enemy {
 public:
     Plane(int dx, int dy, TextureManager* texture_manager, unsigned char** distances, DIRECTION** paths);
-
-    ~Plane();
 };
 
 #endif //CPHW_TD_PLANE_H
