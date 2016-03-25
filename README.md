@@ -6,4 +6,4 @@ A simple tower defense game written on C++
 cmake . && make
 ```
 
-Outut will go to **bin** directory.
+Output will go to **bin** directory.
