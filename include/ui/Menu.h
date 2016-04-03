@@ -31,10 +31,6 @@ private:
     int positions[2] = {0, 0};
     const String values[2][3] = {{"1536x1536", "1024x1024", "768x768"}, {"1"}};
     const String start_button = "Start";
-//    const String resolutions[3] = {"1536x1536", "1024x1024", "768x768"};
-//    const String levels[1] = {"1"};
-
-    const std::string name = "Menu";
 };
 
 #endif //TOWERDEFENCEGAME_MENU_H

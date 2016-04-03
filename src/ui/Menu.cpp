@@ -10,7 +10,7 @@ bool contains(RectangleShape &rect, Vector2f &pos) {
            (f.top <= pos.y && pos.y <= f.top + f.height);
 }
 
-Menu::Menu() : window(VideoMode(Menu::wX, Menu::wY), name, Style::Titlebar | Style::Close) {
+Menu::Menu() : window(VideoMode(Menu::wX, Menu::wY), "Menu", Style::Titlebar | Style::Close) {
     window.setFramerateLimit(30);
     Image icon;
     if (!icon.loadFromFile("assets/Textures/icon.png")) {
