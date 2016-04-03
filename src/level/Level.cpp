@@ -4,7 +4,8 @@
 
 #include "../../include/level/Level.h"
 
-Level::Level(String name, char** map) : window(VideoMode(windowX, windowY), name) {
+Level::Level(String name, char** map)
+        : window(VideoMode(CURRENT_SIZES->windowX, CURRENT_SIZES->windowY), name, Style::Titlebar | Style::Close) {
     init();
     initWindow();
     this->map = map;
@@ -42,23 +43,21 @@ void Level::initWindow() {
     }
     window.setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
 
-    rectangle.setSize(Vector2f(tileW, tileH));
+    rectangle.setSize(Vector2f(CURRENT_SIZES->tileW, CURRENT_SIZES->tileH));
     window.setFramerateLimit(FPS_LIMIT);
 }
 
 void Level::start() {
     Font font;
-    if (!font.loadFromFile("assets/Fonts/sansation.ttf")) {
+    if (!font.loadFromFile("assets/Fonts/SF-UI-Text-Regular.otf")) {
         return;
-//        return EXIT_FAILURE;
     }
-    Text text("", font, 20);
+    Text text("", font, CURRENT_SIZES->font);
     text.setColor(Color::White);
 
     Vector2i hoveredTile(-1, -1);
 
     while (window.isOpen()) {
-
         float time = clock.getElapsedTime().asMicroseconds();
         clock.restart();
 
@@ -85,16 +84,12 @@ void Level::start() {
                 hoveredTile = getTile(event.mouseMove.x, event.mouseMove.y);
             }
 
-
-
-            // Close window: exit
-            if (event.type == Event::Closed) {
-                window.close();
-            }
-
             // Escape pressed: exit
-            if (event.type == Event::KeyPressed && event.key.code == Keyboard::Escape) {
+            if ((event.type == Event::KeyPressed && event.key.code == Keyboard::Escape) ||
+                    event.type == Event::Closed) {
                 window.close();
+                Menu menu;
+                menu.start();
             }
         }
 
@@ -104,11 +99,11 @@ void Level::start() {
         drawEnemies(time);
         drawCanons(time);
 
-        text.setPosition(0, 0);
-        text.setString("FPS: " + std::to_string(1000.0/time));
-        window.draw(text);
+//        text.setPosition(0, 0);
+//        text.setString("FPS: " + std::to_string(1000.0/time));
+//        window.draw(text);
 
-        text.setPosition(0, 22);
+        text.setPosition(8, 2);
         text.setString("Money: " + std::to_string(money));
         window.draw(text);
 
@@ -139,9 +134,8 @@ void Level::drawMap(Vector2i hoveredTile) {
                     break;
                 default:
                     continue;
-                    break;
             }
-            rectangle.setPosition(j * tileW, i * tileH);
+            rectangle.setPosition(j * CURRENT_SIZES->tileW, i * CURRENT_SIZES->tileH);
             window.draw(rectangle);
         }
     }

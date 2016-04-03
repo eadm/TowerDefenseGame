@@ -6,18 +6,18 @@
 
 
 Canon::Canon(int dx, int dy, TextureManager* texture_manager, std::vector<Enemy*>* enemies)
-        : GraphicObject(texture_manager->texture_canon_body), rect(dx, dy, tileW, tileH) {
+        : GraphicObject(texture_manager->texture_canon_body), rect(dx, dy, CURRENT_SIZES->tileW, CURRENT_SIZES->tileH) {
 
     target = nullptr;
 
 //    sprite_body.setTexture(canon_body);
-    sprite_body.setPosition(dx * tileW, dy * tileH);
+    sprite_body.setPosition(dx * CURRENT_SIZES->tileW, dy * CURRENT_SIZES->tileH);
 
     sprite_barrel.setTexture(texture_manager->texture_canon_barrel);
-    sprite_barrel.setPosition((dx + 0.5) * tileW, (dy + 0.5) * tileH);
-    sprite_barrel.setOrigin(tileW / 2, tileH / 2);
+    sprite_barrel.setPosition((dx + 0.5f) * CURRENT_SIZES->tileW, (dy + 0.5f) * CURRENT_SIZES->tileH);
+    sprite_barrel.setOrigin(CURRENT_SIZES->tileW / 2, CURRENT_SIZES->tileH / 2);
     sprite_barrel.setRotation(alpha);
-    sprite_barrel.setTextureRect(IntRect(0, 0, tileW, tileH));
+    sprite_barrel.setTextureRect(IntRect(0, 0, CURRENT_SIZES->tileW, CURRENT_SIZES->tileH));
 
     this->enemies = enemies;
     this->texture_manager = texture_manager;
@@ -30,8 +30,8 @@ void Canon::setTarget(Enemy* target) {
 void Canon::setAim(Vector2f aim) {
     if (getDistance(aim) > radius) return;
 
-    float tmp_aplpha = atan2( aim.x - (rect.left + 0.5) * tileW, (rect.top + 0.5) * tileH - aim.y ) * 180 / PI;
-    alpha = tmp_aplpha > 0 ? tmp_aplpha : 360.0 + tmp_aplpha;
+    float tmp_aplpha = atan2f( aim.x - (rect.left + 0.5f) * CURRENT_SIZES->tileW, (rect.top + 0.5f) * CURRENT_SIZES->tileH - aim.y ) * 180 / PI;
+    alpha = tmp_aplpha > 0 ? tmp_aplpha : 360.0f + tmp_aplpha;
 }
 
 void Canon::shoot(Enemy* enemy) {

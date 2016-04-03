@@ -5,8 +5,8 @@
 #ifndef CPHW_TD_SIZES_H
 #define CPHW_TD_SIZES_H
 
-int const windowX = 1536, windowY = 1536;
-int const mapH = 32, mapW = 32;
-int const tileH = windowY / mapH, tileW = windowX / mapW;
+//unsigned int const windowX = 1024, windowY = 1024;
+unsigned int const mapH = 32, mapW = 32;
+//unsigned int const tileH = windowY / mapH, tileW = windowX / mapW;
 
 #endif //CPHW_TD_SIZES_H

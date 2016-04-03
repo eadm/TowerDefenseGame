@@ -7,6 +7,6 @@
 Plane::Plane(int dx, int dy, TextureManager* texture_manager, unsigned char** distances, DIRECTION** paths)
         : Enemy(dx, dy, texture_manager, texture_manager->texture_plane1_body, distances, paths) {
     this->base_health = 400;
-    this->velocity = 0.15;
+    this->velocity = (float) 0.15 / CURRENT_SIZES->multiplier;
     this->initHealth();
 }

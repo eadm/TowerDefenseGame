@@ -9,7 +9,7 @@ GraphicObject::GraphicObject(Texture& texture_body) {
 
 float GraphicObject::getDistance(Vector2f target) {
     Vector2f pos = sprite_body.getPosition();
-    return static_cast<float>(sqrt(pow((target.x - pos.x) / tileW + 0.5, 2) + pow((target.y - pos.y) / tileH + 0.5, 2)));
+    return static_cast<float>(sqrt(pow((target.x - pos.x) / CURRENT_SIZES->tileW + 0.5, 2) + pow((target.y - pos.y) / CURRENT_SIZES->tileH + 0.5, 2)));
 }
 
 int GraphicObject::getDirection(float cur_alpha, float dif_alpha, float alpha) {

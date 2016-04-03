@@ -8,6 +8,7 @@
 #include "../GraphicObject.h"
 #include "../TextureManager.h"
 #include "../../constants/Directions.h"
+#include "../../constants/SizeSettings.h"
 
 #ifndef GET_TILE
 #define GET_TILE
@@ -21,7 +22,6 @@ class Bullet;
 
 class Enemy : public GraphicObject {
 public:
-
     Enemy(int dx, int dy, TextureManager* texture_manager, Texture& texture_body, unsigned char** distances, DIRECTION** paths);
 
     ~Enemy();

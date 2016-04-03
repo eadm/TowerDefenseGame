@@ -5,13 +5,13 @@
 #include "../../../include/objects/enemies/Enemy.h"
 
 const Vector2i getTile(int x, int y) {
-    return Vector2i(x / tileW, y / tileH);
+    return Vector2i(x / CURRENT_SIZES->tileW, y / CURRENT_SIZES->tileH);
 }
 
 Enemy::Enemy(int dx, int dy, TextureManager* texture_manager, Texture& texture_body, unsigned char** distances, DIRECTION** paths) : GraphicObject(texture_body) {
-    sprite_body.setTextureRect(IntRect(0, 0, tileW, tileH));
-    sprite_body.setPosition((dx + 0.5) * tileW, (dy + 0.5) * tileH);
-    sprite_body.setOrigin(tileW / 2, tileH / 2);
+    sprite_body.setTextureRect(IntRect(0, 0, CURRENT_SIZES->tileW, CURRENT_SIZES->tileH));
+    sprite_body.setPosition((dx + 0.5f) * CURRENT_SIZES->tileW, (dy + 0.5f) * CURRENT_SIZES->tileH);
+    sprite_body.setOrigin(CURRENT_SIZES->tileW / 2, CURRENT_SIZES->tileH / 2);
 
     this->distances = distances;
     this->paths = paths;
@@ -62,9 +62,9 @@ void Enemy::update(float time) {
     Vector2i posTile = getTile(pos.x, pos.y);
 
 
-    if (std::abs(pos.x - (posTile.x + 0.5) * tileW) <= std::abs(velocityX) * time &&
-        std::abs(pos.y - (posTile.y + 0.5) * tileH) <= std::abs(velocityY) * time) {
-        sprite_body.setPosition((posTile.x + 0.5) * tileW, (posTile.y + 0.5) * tileH);
+    if (std::abs(pos.x - (posTile.x + 0.5) * CURRENT_SIZES->tileW) <= std::abs(velocityX) * time &&
+        std::abs(pos.y - (posTile.y + 0.5) * CURRENT_SIZES->tileH) <= std::abs(velocityY) * time) {
+        sprite_body.setPosition((posTile.x + 0.5f) * CURRENT_SIZES->tileW, (posTile.y + 0.5f) * CURRENT_SIZES->tileH);
 
         velocityX = 0;
         velocityY = 0;
@@ -110,7 +110,7 @@ void Enemy::update(float time) {
         }
     }
 
-    sprite_body.move(velocityX * time , velocityY * time);
+    sprite_body.move(velocityX * time, velocityY * time);
 
     for (long i = bullets->size() - 1; i >= 0; i--) { // расчет полета пуль, летящих в танк
         if (bullets->at(i)->isReached()) {
@@ -125,9 +125,9 @@ void Enemy::update(float time) {
     }
 
     if (health < 300) {
-        sprite_body.setTextureRect(IntRect(2 * tileW, 0, tileW, tileH));
+        sprite_body.setTextureRect(IntRect(2 * CURRENT_SIZES->tileW, 0, CURRENT_SIZES->tileW, CURRENT_SIZES->tileH));
     } else if (health < 600) {
-        sprite_body.setTextureRect(IntRect(tileW, 0, tileW, tileH));
+        sprite_body.setTextureRect(IntRect(CURRENT_SIZES->tileW, 0, CURRENT_SIZES->tileW, CURRENT_SIZES->tileH));
     }
 }
 

@@ -10,6 +10,8 @@
 #include "../objects/enemies/Plane.h"
 #include "../algo/Paths.h"
 #include "LevelColors.h"
+#include "../constants/SizeSettings.h"
+#include "../ui/Menu.h"
 
 class Level {
 public:

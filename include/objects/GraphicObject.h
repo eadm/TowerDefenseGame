@@ -14,11 +14,13 @@
 #include <iostream>
 #endif
 
+#include "../constants/SizeSettings.h"
+
 #ifndef __MATH__
 #define __MATH__
 #include <cmath>
 
-#define PI 3.14159265
+#define PI 3.14159265f
 #endif
 
 using namespace sf;
