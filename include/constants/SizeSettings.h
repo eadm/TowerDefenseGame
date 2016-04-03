@@ -20,9 +20,9 @@ struct SizeSettings {
 };
 
 namespace Settings {
-    static const SizeSettings S_48(48 * mapH, 48 * mapW, 30, 1.0, "48");
-    static const SizeSettings S_32(32 * mapH, 32 * mapW, 24, 1.5, "32");
-    static const SizeSettings S_24(24 * mapH, 24 * mapW, 16, 2.0, "24");
+    static const SizeSettings S_48(48 * (mapW + 2), 48 * mapH, 30, 1.0, "48");
+    static const SizeSettings S_32(32 * (mapW + 2), 32 * mapH, 24, 1.5, "32");
+    static const SizeSettings S_24(24 * (mapW + 2), 24 * mapH, 16, 2.0, "24");
 
 
 };

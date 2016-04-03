@@ -11,7 +11,7 @@ class Enemy;
 
 class Bullet : public GraphicObject {
 public:
-    int const damage = 30;
+    int damage = 30;
 
     Bullet(Vector2f start, Enemy* target, TextureManager* texture_manager);
     bool isReached();

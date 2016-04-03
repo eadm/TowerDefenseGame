@@ -15,7 +15,7 @@
 
 class Level {
 public:
-    Level(String name, char** map);
+    Level(String name);
 
     ~Level();
 
@@ -23,6 +23,13 @@ public:
 
 
 private:
+    const float getDistance(Vector2f a, Vector2f b);
+
+    void failed();
+    void succeed();
+
+    bool pause = false;
+
     void init();
     void initWindow();
 
@@ -30,11 +37,25 @@ private:
     Clock clock;
 
     RectangleShape rectangle;
+    Vector2i enter;
 //    Text text;
 
-    DIRECTION** paths; // карта путей для врагов
+    DIRECTION** paths; // карта путей для танков
+    DIRECTION** paths2; // карта путей для самалётов
     unsigned char** distances; // карта с количеством квадратов до выхода
     char** map;
+
+    unsigned int lives = 10;
+
+    int waves_count;
+    int waves_cooldown = 10000;
+    int current_wave = -1;
+    const int enemy_base_cooldown = 1000;
+    int enemy_cooldown_0 = enemy_base_cooldown;
+    int enemy_cooldown_1 = enemy_base_cooldown;
+    int** waves;
+
+    void calcWaveCooldown(int& cooldown, float time, unsigned char type, DIRECTION**& paths);
 
     TextureManager *texture_manager;
 

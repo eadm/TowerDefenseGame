@@ -14,7 +14,8 @@ namespace LevelColors {
             B, // border
             X, // exit
             C, // canon
-            H; // hovered
+            H, // hovered
+            HS; // hovered zone
 }
 
 #endif //CPHW_TD_LEVELCOLORS_H

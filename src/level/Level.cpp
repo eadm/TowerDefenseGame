@@ -4,13 +4,15 @@
 
 #include "../../include/level/Level.h"
 
-Level::Level(String name, char** map)
+Level::Level(String name)
         : window(VideoMode(CURRENT_SIZES->windowX, CURRENT_SIZES->windowY), name, Style::Titlebar | Style::Close) {
-    init();
     initWindow();
-    this->map = map;
+    this->map = readLevel("assets/Levels/" + name + "/map", this->enter);
+    this->paths = readPaths("assets/Levels/" + name + "/paths");
+    this->paths2 = readPaths("assets/Levels/" + name + "/paths2");
+    this->waves = readWaves("assets/Levels/" + name + "/waves", this->waves_count);
     texture_manager = new TextureManager();
-    getPaths(paths, distances, this->map);
+    init();
 }
 
 Level::~Level() {
@@ -23,16 +25,26 @@ Level::~Level() {
     delete [] paths;
     delete [] distances;
 
+    for (size_t i = 0; i < waves_count; ++i) {
+        delete [] waves[i];
+    }
+    delete [] waves;
+
     delete texture_manager;
 }
 
 void Level::init() { // выделяем память под наши массивы
-    paths = (DIRECTION**) malloc(mapH * sizeof(DIRECTION*));
     distances = (unsigned char**) malloc(mapH * sizeof(unsigned char*));
 
     for (size_t i = 0; i < mapH; i++) {
-        paths[i] = (DIRECTION*) malloc(mapW * sizeof(DIRECTION));
         distances[i] = (unsigned char*) malloc(mapW * sizeof(unsigned char));
+        for (int j = 0; j < mapW; ++j) {
+            if (map[i][j] == 'X') {
+                distances[i][j] = 0;
+            } else {
+                distances[i][j] = 100;
+            }
+        }
     }
 }
 
@@ -45,6 +57,20 @@ void Level::initWindow() {
 
     rectangle.setSize(Vector2f(CURRENT_SIZES->tileW, CURRENT_SIZES->tileH));
     window.setFramerateLimit(FPS_LIMIT);
+}
+
+void Level::calcWaveCooldown(int &cooldown, float time, unsigned char type, DIRECTION**& paths) {
+    if (cooldown <= time && waves[current_wave][type] > 0) {
+        if (type == 0) {
+            enemies.push_back(new Panzer(enter.x, enter.y, texture_manager, distances, paths));
+        } else {
+            enemies.push_back(new Plane(enter.x, enter.y, texture_manager, distances, paths));
+        }
+        cooldown = enemy_base_cooldown;
+        waves[current_wave][type]--;
+    } else {
+        cooldown -= time;
+    }
 }
 
 void Level::start() {
@@ -62,6 +88,21 @@ void Level::start() {
         clock.restart();
 
         time /= 1000; // slowing the time
+        if (pause) time = 0;
+
+        if (waves_cooldown <= time && current_wave < waves_count - 1) {
+            current_wave++;
+            waves_cooldown = (waves[current_wave][0] + waves[current_wave][1]) * enemy_base_cooldown + 10000;
+        } else {
+            waves_cooldown -= time;
+            if (current_wave == waves_count - 1 && enemies.size() == 0) succeed();
+        }
+
+        if (0 <= current_wave && current_wave < waves_count) {
+            calcWaveCooldown(enemy_cooldown_0, time, 0, paths);
+            calcWaveCooldown(enemy_cooldown_1, time, 1, paths2);
+        }
+
 
         // Process events
         Event event;
@@ -76,12 +117,16 @@ void Level::start() {
                 }
 
                 if (map[pos.y][pos.x] == ' ') {
-                    enemies.push_back(new Plane(pos.x, pos.y, texture_manager, distances, paths));
+                    enemies.push_back(new Panzer(pos.x, pos.y, texture_manager, distances, paths));
                 }
             }
 
             if (event.type == Event::MouseMoved) {
                 hoveredTile = getTile(event.mouseMove.x, event.mouseMove.y);
+            }
+
+            if (event.type == Event::KeyPressed && event.key.code == Keyboard::P) {
+                pause = !pause;
             }
 
             // Escape pressed: exit
@@ -105,6 +150,18 @@ void Level::start() {
 
         text.setPosition(8, 2);
         text.setString("Money: " + std::to_string(money));
+        window.draw(text);
+
+        text.setPosition(text.getGlobalBounds().left + text.getGlobalBounds().width + 30, 2);
+        text.setString("Wave: " + (current_wave > -1 ? std::to_string(current_wave) : "prepare"));
+        window.draw(text);
+
+        text.setPosition(text.getGlobalBounds().left + text.getGlobalBounds().width + 30, 2);
+        text.setString("Next in: " + std::to_string(waves_cooldown));
+        window.draw(text);
+
+        text.setPosition(text.getGlobalBounds().left + text.getGlobalBounds().width + 30, 2);
+        text.setString("Lives: " + std::to_string(lives));
         window.draw(text);
 
         window.display();
@@ -133,20 +190,34 @@ void Level::drawMap(Vector2i hoveredTile) {
                     }
                     break;
                 default:
-                    continue;
+                    rectangle.setFillColor(Color(243, 255, 226));
+                    break;
+//                    continue;
             }
             rectangle.setPosition(j * CURRENT_SIZES->tileW, i * CURRENT_SIZES->tileH);
             window.draw(rectangle);
+
+            if (hoveredTile.y >= 0 && hoveredTile.x >= 0 && map[hoveredTile.y][hoveredTile.x] == 'A') {
+                if (getDistance(Vector2f(hoveredTile.x, hoveredTile.y), Vector2f(j, i)) <= 10) {
+                    rectangle.setFillColor(LevelColors::HS);
+                    window.draw(rectangle);
+                }
+            }
         }
     }
 }
 
 void Level::drawEnemies(float time) {
     for (long i = enemies.size() - 1; i >= 0 ; i--) {
-        if (enemies[i]->isDead()) {
+        if (enemies[i]->isDead() || enemies[i]->getDistanceToExit() == 0) {
+            if (enemies[i]->isDead()) {
+                money += enemy_price;
+            } else {
+                lives--;
+                if (lives == 0) failed();
+            }
             delete enemies[i];
             enemies.erase(enemies.begin() + i);
-            money += enemy_price;
             // RECYCLE
         } else {
             enemies[i]->update(time);
@@ -165,4 +236,18 @@ void Level::drawCanons(float time) {
         window.draw(canons[i].sprite_body);
         window.draw(canons[i].sprite_barrel);
     }
+}
+
+const float Level::getDistance(Vector2f a, Vector2f b) {
+    return sqrtf(powf(a.x - b.x, 2) + powf(a.y - b.y, 2));
+}
+
+void Level::failed() {
+    pause = true;
+    std::cout << "Level failed" << std::endl;
+}
+
+void Level::succeed() {
+    pause = true;
+    std::cout << "Level succeed" << std::endl;
 }

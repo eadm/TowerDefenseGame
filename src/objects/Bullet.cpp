@@ -6,6 +6,7 @@
 
 Bullet::Bullet(Vector2f start, Enemy* target, TextureManager* texture_manager) : GraphicObject(texture_manager->texture_bullet) {
     this->target = target;
+    this->damage = rand() % damage;
     sprite_body.setPosition(start);
     sprite_body.setOrigin(4, 8);
 }

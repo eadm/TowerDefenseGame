@@ -7,7 +7,6 @@
 
 #ifndef __SFML__
 #define __SFML__
-#include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
 #include "../constants/Sizes.h"
 

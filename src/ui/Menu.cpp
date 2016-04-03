@@ -148,8 +148,7 @@ void Menu::start() {
             }
             window.close();
 
-            char** map = readLevel("assets/Levels/01/map");
-            Level level("Level 1", map);
+            Level level(values[1][positions[1]]);
             level.start();
         }
 

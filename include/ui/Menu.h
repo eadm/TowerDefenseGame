@@ -29,7 +29,7 @@ private:
     const String fields[2] = {"Resolution", "Level "};
     const int sizes[2] = {3, 1};
     int positions[2] = {0, 0};
-    const String values[2][3] = {{"1536x1536", "1024x1024", "768x768"}, {"1"}};
+    const String values[2][3] = {{"1536x1536", "1024x1024", "768x768"}, {"01"}};
     const String start_button = "Start";
 };
 
