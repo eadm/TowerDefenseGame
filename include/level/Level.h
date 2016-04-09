@@ -6,22 +6,25 @@
 #define CPHW_TD_LEVEL_H
 
 #include "../objects/Canon.h"
+#include "../objects/enemies/Car.h"
 #include "../objects/enemies/Panzer.h"
 #include "../objects/enemies/Plane.h"
 #include "../algo/Paths.h"
 #include "LevelColors.h"
 #include "../constants/SizeSettings.h"
 #include "../ui/Menu.h"
+#include <vector>
+#include <queue>
+
+using namespace std;
 
 class Level {
 public:
-    Level(String name);
+    Level(string name);
 
     ~Level();
 
     void start();
-
-
 private:
     const float getDistance(Vector2f a, Vector2f b);
 
@@ -38,24 +41,20 @@ private:
 
     RectangleShape rectangle;
     Vector2i enter;
-//    Text text;
 
-    DIRECTION** paths; // карта путей для танков
-    DIRECTION** paths2; // карта путей для самалётов
+    DIRECTION** ground_paths; // карта путей для танков
+    DIRECTION** air_paths; // карта путей для самалётов
     unsigned char** distances; // карта с количеством квадратов до выхода
     char** map;
 
-    unsigned int lives = 10;
+    size_t lives = 10;
 
-    int waves_count;
-    int waves_cooldown = 10000;
-    int current_wave = -1;
-    const int enemy_base_cooldown = 1000;
-    int enemy_cooldown_0 = enemy_base_cooldown;
-    int enemy_cooldown_1 = enemy_base_cooldown;
-    int** waves;
+    int waves_cool_down = 10000;
+    const int enemy_base_cool_down = 1000;
+    int enemy_cool_down = enemy_base_cool_down;
 
-    void calcWaveCooldown(int& cooldown, float time, unsigned char type, DIRECTION**& paths);
+    queue<int> current_wave;
+    queue<queue<int>> waves;
 
     TextureManager *texture_manager;
 
@@ -63,14 +62,16 @@ private:
     void drawEnemies(float time);
     void drawCanons(float time);
 
-    std::vector<Enemy*> enemies;
-    std::vector<Canon> canons;
+    vector<Enemy*> enemies;
+    vector<Canon> canons;
 
     long long money = 5000;
-    int const canon_price = 1000;
-    int const enemy_price = 300;
 
-    int const FPS_LIMIT = 120;
+    Canon** available_canons; // templates of canons you can add
+    int selected_canon = -1;
+    Enemy** available_enemies; // templates of enemies
+
+    size_t const FPS_LIMIT = 120;
 };
 
 #endif //CPHW_TD_LEVEL_H

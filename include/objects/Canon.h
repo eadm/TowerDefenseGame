@@ -7,7 +7,6 @@
 
 #ifndef __SFML__
 #define __SFML__
-#include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
 #include "../constants/Sizes.h"
 
@@ -15,6 +14,7 @@
 #include <iostream>
 #endif
 
+#include "../file/Reader.h"
 
 #ifndef __MATH__
 #define __MATH__
@@ -26,14 +26,29 @@
 #include "enemies/Enemy.h"
 
 using namespace sf;
+using namespace std;
 
 class Canon : public GraphicObject {
 public:
-    FloatRect rect;
-    Sprite sprite_barrel;
-    const TextureManager* texture_manager;
+    const size_t price;
+    const FloatRect rect;
+    const int radius;
 
-    Canon(int dx, int dy, TextureManager* texture_manager, std::vector<Enemy*>* enemies);
+    Sprite sprite_barrel;
+
+    Canon(int x, int y, TextureManager*, vector<Enemy*>*,
+          size_t price = 0,
+          EnemyType = EnemyType::MIXED,
+          int radius = 10,
+          int damage = 30,
+          float bullet_velocity = 0.005,
+          int bullet_texture = 4,
+          int body_texture = 0,
+          int barrel_texture = 1);
+
+    static Canon* fromFile(int x, int y, TextureManager*, vector<Enemy*>*, string);
+
+    Canon(int x, int y, Canon const&);
 
     void setTarget(Enemy* target);
 
@@ -42,20 +57,27 @@ public:
     void shoot(Enemy* enemy);
 
     void update(float time);
-
 private:
+    void init(int x, int y, const Texture& barrel_texture);
+    
+    const EnemyType enemyType;
     void chooseTarget();
 
-    int const radius = 10;
-    float const alpha_velocity = 0.5;
-    float const base_shoot_cooldown = 1000.0;
+    TextureManager *const texture_manager;
+
+    const float alpha_velocity = 0.5;
+    const float base_shoot_cool_down = 1000.0;
 
     float alpha = 0;
-    float shoot_cooldown = 0.0;
+    float shoot_cool_down = 0.0;
+
+    const int damage;
+    const float bullet_velocity;
+    const int bullet_texture;
 
     Enemy* target;
 
-    std::vector<Enemy*>* enemies;
+    const vector<Enemy*>* enemies;
 };
 
 

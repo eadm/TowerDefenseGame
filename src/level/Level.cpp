@@ -4,31 +4,49 @@
 
 #include "../../include/level/Level.h"
 
-Level::Level(String name)
-        : window(VideoMode(CURRENT_SIZES->windowX, CURRENT_SIZES->windowY), name, Style::Titlebar | Style::Close) {
+Level::Level(string name) :
+        window(VideoMode(CURRENT_SIZES->windowX, CURRENT_SIZES->windowY), name, Style::Titlebar | Style::Close),
+        waves(readWaves("assets/Levels/" + name + "/waves")) {
+
     initWindow();
     this->map = readLevel("assets/Levels/" + name + "/map", this->enter);
-    this->paths = readPaths("assets/Levels/" + name + "/paths");
-    this->paths2 = readPaths("assets/Levels/" + name + "/paths2");
-    this->waves = readWaves("assets/Levels/" + name + "/waves", this->waves_count);
+    this->ground_paths = readPaths("assets/Levels/" + name + "/paths");
+    this->air_paths = readPaths("assets/Levels/" + name + "/paths2");
     texture_manager = new TextureManager();
+
     init();
+
+    available_canons = (Canon**) malloc(sizeof(Canon*) * 2);
+    available_canons[0] = Canon::fromFile(-1, -1, texture_manager, &enemies, "assets/Objects/Canons/ground");
+    available_canons[1] = Canon::fromFile(-1, -1, texture_manager, &enemies, "assets/Objects/Canons/air");
+
+    available_enemies = (Enemy**) malloc(sizeof(Enemy*) * 3);
+    available_enemies[0] = new Car(-1, -1, texture_manager, distances, ground_paths);
+    available_enemies[1] = new Panzer(-1, -1, texture_manager, distances, ground_paths);
+    available_enemies[2] = new Plane(-1, -1, texture_manager, distances, air_paths);
 }
 
 Level::~Level() {
     for (size_t i = 0; i < mapH; i++) {
         delete [] map[i];
-        delete [] paths[i];
+        delete [] ground_paths[i];
+        delete [] air_paths[i];
         delete [] distances[i];
     }
     delete [] map;
-    delete [] paths;
+    delete [] ground_paths;
+    delete [] air_paths;
     delete [] distances;
 
-    for (size_t i = 0; i < waves_count; ++i) {
-        delete [] waves[i];
+    for (size_t i = 0; i < 2; ++i) {
+        delete available_canons[i];
     }
-    delete [] waves;
+    delete [] available_canons;
+
+    for (size_t i = 0; i < 3; ++i) {
+        delete available_enemies[i];
+    }
+    delete [] available_enemies;
 
     delete texture_manager;
 }
@@ -59,21 +77,9 @@ void Level::initWindow() {
     window.setFramerateLimit(FPS_LIMIT);
 }
 
-void Level::calcWaveCooldown(int &cooldown, float time, unsigned char type, DIRECTION**& paths) {
-    if (cooldown <= time && waves[current_wave][type] > 0) {
-        if (type == 0) {
-            enemies.push_back(new Panzer(enter.x, enter.y, texture_manager, distances, paths));
-        } else {
-            enemies.push_back(new Plane(enter.x, enter.y, texture_manager, distances, paths));
-        }
-        cooldown = enemy_base_cooldown;
-        waves[current_wave][type]--;
-    } else {
-        cooldown -= time;
-    }
-}
-
 void Level::start() {
+    int multiplier = 1000;
+
     Font font;
     if (!font.loadFromFile("assets/Fonts/SF-UI-Text-Regular.otf")) {
         return;
@@ -87,22 +93,28 @@ void Level::start() {
         float time = clock.getElapsedTime().asMicroseconds();
         clock.restart();
 
-        time /= 1000; // slowing the time
+        time /= multiplier; // slowing the time
         if (pause) time = 0;
 
-        if (waves_cooldown <= time && current_wave < waves_count - 1) {
-            current_wave++;
-            waves_cooldown = (waves[current_wave][0] + waves[current_wave][1]) * enemy_base_cooldown + 10000;
+        if (waves_cool_down <= time && !waves.empty()) {
+            current_wave = waves.front();
+            waves.pop();
+            waves_cool_down = (int)current_wave.size() * enemy_base_cool_down + 10000;
         } else {
-            waves_cooldown -= time;
-            if (current_wave == waves_count - 1 && enemies.size() == 0) succeed();
+            waves_cool_down -= time;
+
+            if (waves.empty() && current_wave.empty() && enemies.empty()) {
+                succeed();
+            }
         }
 
-        if (0 <= current_wave && current_wave < waves_count) {
-            calcWaveCooldown(enemy_cooldown_0, time, 0, paths);
-            calcWaveCooldown(enemy_cooldown_1, time, 1, paths2);
+        if (enemy_cool_down <= time && !current_wave.empty()) {
+            enemies.push_back(new Enemy(enter.x, enter.y, *available_enemies[current_wave.front()]));
+            current_wave.pop();
+            enemy_cool_down = enemy_base_cool_down;
+        } else {
+            enemy_cool_down -= time;
         }
-
 
         // Process events
         Event event;
@@ -110,23 +122,45 @@ void Level::start() {
             if (event.type == Event::MouseButtonPressed) { // press
                 Vector2i pos = getTile(event.mouseButton.x, event.mouseButton.y);
 
-                if (map[pos.y][pos.x] == 'A' && money >= canon_price) {
-                    money -= canon_price;
+                if (map[pos.y][pos.x] == 'A' &&
+                        selected_canon != -1 &&
+                        money >= available_canons[selected_canon]->price) { // Add a canon
+
+                    money -= available_canons[selected_canon]->price;
                     map[pos.y][pos.x] = 'C';
-                    canons.push_back(Canon(pos.x, pos.y, texture_manager, &enemies));
+
+                    canons.push_back(Canon(pos.x, pos.y, *available_canons[selected_canon]));
                 }
 
-                if (map[pos.y][pos.x] == ' ') {
-                    enemies.push_back(new Panzer(pos.x, pos.y, texture_manager, distances, paths));
-                }
+//                if (map[pos.y][pos.x] == ' ') {
+//                    enemies.push_back(new Panzer(pos.x, pos.y, texture_manager, distances, paths));
+//                }
             }
 
             if (event.type == Event::MouseMoved) {
                 hoveredTile = getTile(event.mouseMove.x, event.mouseMove.y);
             }
 
-            if (event.type == Event::KeyPressed && event.key.code == Keyboard::P) {
-                pause = !pause;
+            if (event.type == Event::KeyPressed) {
+                switch (event.key.code) {
+                    case Keyboard::P: // pause on P
+                        pause = !pause;
+                        break;
+                    case Keyboard::RBracket: // speed up on ]
+                        multiplier = std::max(multiplier / 2, 250);
+                        break;
+                    case Keyboard::LBracket: // slow down on [
+                        multiplier = std::min(multiplier * 2, 4000);
+                        break;
+                    case Keyboard::Num1:
+                        selected_canon = 0;
+                        break;
+                    case Keyboard::Num2:
+                        selected_canon = 1;
+                        break;
+                    default:
+                        break;
+                }
             }
 
             // Escape pressed: exit
@@ -144,20 +178,16 @@ void Level::start() {
         drawEnemies(time);
         drawCanons(time);
 
-//        text.setPosition(0, 0);
-//        text.setString("FPS: " + std::to_string(1000.0/time));
-//        window.draw(text);
-
         text.setPosition(8, 2);
         text.setString("Money: " + std::to_string(money));
         window.draw(text);
 
         text.setPosition(text.getGlobalBounds().left + text.getGlobalBounds().width + 30, 2);
-        text.setString("Wave: " + (current_wave > -1 ? std::to_string(current_wave) : "prepare"));
+        text.setString("Wave: " + to_string(waves.size()));
         window.draw(text);
 
         text.setPosition(text.getGlobalBounds().left + text.getGlobalBounds().width + 30, 2);
-        text.setString("Next in: " + std::to_string(waves_cooldown));
+        text.setString("Next in: " + std::to_string(waves_cool_down));
         window.draw(text);
 
         text.setPosition(text.getGlobalBounds().left + text.getGlobalBounds().width + 30, 2);
@@ -192,13 +222,14 @@ void Level::drawMap(Vector2i hoveredTile) {
                 default:
                     rectangle.setFillColor(Color(243, 255, 226));
                     break;
-//                    continue;
             }
             rectangle.setPosition(j * CURRENT_SIZES->tileW, i * CURRENT_SIZES->tileH);
             window.draw(rectangle);
 
-            if (hoveredTile.y >= 0 && hoveredTile.x >= 0 && map[hoveredTile.y][hoveredTile.x] == 'A') {
-                if (getDistance(Vector2f(hoveredTile.x, hoveredTile.y), Vector2f(j, i)) <= 10) {
+            if (hoveredTile.y >= 0 && hoveredTile.x >= 0 &&
+                    map[hoveredTile.y][hoveredTile.x] == 'A' &&
+                    selected_canon != -1) {
+                if (getDistance(Vector2f(hoveredTile.x, hoveredTile.y), Vector2f(j, i)) <= available_canons[selected_canon]->radius) {
                     rectangle.setFillColor(LevelColors::HS);
                     window.draw(rectangle);
                 }
@@ -208,33 +239,32 @@ void Level::drawMap(Vector2i hoveredTile) {
 }
 
 void Level::drawEnemies(float time) {
-    for (long i = enemies.size() - 1; i >= 0 ; i--) {
-        if (enemies[i]->isDead() || enemies[i]->getDistanceToExit() == 0) {
-            if (enemies[i]->isDead()) {
-                money += enemy_price;
+    for (auto it = enemies.rbegin(); it != enemies.rend() ; ++it) {
+        if ((*it)->isDead() || (*it)->getDistanceToExit() == 0) {
+            if ((*it)->isDead()) {
+                money += (*it)->price;
             } else {
                 lives--;
                 if (lives == 0) failed();
             }
-            delete enemies[i];
-            enemies.erase(enemies.begin() + i);
-            // RECYCLE
+            delete (*it);
+            enemies.erase(next(it).base());
         } else {
-            enemies[i]->update(time);
-            window.draw(enemies[i]->sprite_body);
-            for (size_t j = 0; j < enemies[i]->bullets->size(); j ++) {
-                window.draw(enemies[i]->bullets->at(j)->sprite_body);
+            (*it)->update(time);
+            window.draw((*it)->sprite_body);
+            for (size_t j = 0; j < (*it)->bullets->size(); j ++) {
+                window.draw((*it)->bullets->at(j)->sprite_body);
             }
         }
     }
 }
 
 void Level::drawCanons(float time) {
-    for (size_t i = 0; i < canons.size(); i++) {
-        canons[i].update(time);
+    for (auto &canon: canons) {
+        canon.update(time);
 
-        window.draw(canons[i].sprite_body);
-        window.draw(canons[i].sprite_barrel);
+        window.draw(canon.sprite_body);
+        window.draw(canon.sprite_barrel);
     }
 }
 

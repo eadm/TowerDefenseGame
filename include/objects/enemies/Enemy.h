@@ -13,16 +13,24 @@
 #ifndef GET_TILE
 #define GET_TILE
 
-const Vector2i getTile(int x, int y);
+const Vector2i getTile(float x, float y);
 #endif
 
 class Bullet;
 
 #include "../Bullet.h"
 
+enum EnemyType {
+    MIXED = 0,
+    GROUND = 1,
+    AIR = 2
+};
+
 class Enemy : public GraphicObject {
 public:
-    Enemy(int dx, int dy, TextureManager* texture_manager, Texture& texture_body, unsigned char** distances, DIRECTION** paths);
+    Enemy(int dx, int dy, Texture& texture_body, unsigned char** distances, DIRECTION** paths,
+          const unsigned int c = 0, EnemyType e = GROUND);
+    Enemy(int dx, int dy, Enemy const&);
 
     ~Enemy();
     unsigned char getDistanceToExit();
@@ -30,17 +38,22 @@ public:
     bool isTarget();
     bool isDead();
 
+    const EnemyType enemyType;
+
     void update(float time);
 
-    void addBullet(Vector2f start);
+    void addBullet(Bullet*);
+
+    const unsigned int price;
 
     std::vector<Bullet*>* bullets;
 private:
+    void init(int dx, int dy);
+
     float const alpha_velocity = 0.5;
     int health,potential_health;
 
     float velocityX = 0, velocityY = 0;
-    TextureManager* texture_manager;
 
     void rotate(float target_alpha, float time);
 

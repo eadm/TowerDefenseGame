@@ -4,9 +4,11 @@
 
 #include "../../include/objects/Bullet.h"
 
-Bullet::Bullet(Vector2f start, Enemy* target, TextureManager* texture_manager) : GraphicObject(texture_manager->texture_bullet) {
+Bullet::Bullet(Vector2f start, Enemy* target, Texture& texture_body, int d, float v) :
+        GraphicObject(texture_body),
+        damage(std::max(rand() % d, 10)),
+        velocity(v) {
     this->target = target;
-    this->damage = rand() % damage;
     sprite_body.setPosition(start);
     sprite_body.setOrigin(4, 8);
 }
@@ -39,5 +41,5 @@ float Bullet::getAlpha(Vector2f aim) {
     Vector2f c_pos = getPosition();
 
     float tmp_aplpha = atan2f( aim.x - c_pos.x, c_pos.y - aim.y ) * 180 / PI;
-    return tmp_aplpha > 0 ? tmp_aplpha : 360.0 + tmp_aplpha;
+    return tmp_aplpha > 0 ? tmp_aplpha : 360.0f + tmp_aplpha;
 }

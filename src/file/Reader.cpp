@@ -4,13 +4,13 @@
 
 #include "../../include/file/Reader.h"
 
-char** readLevel(std::string name, sf::Vector2i& enter) {
-    std::ifstream file(name);
-    std::string str;
+char** readLevel(string name, sf::Vector2i& enter) {
+    ifstream file(name);
+    string str;
     char** map = (char**) malloc(sizeof(char*) * mapH);
 
-    std::getline(file, str);
-    for (int i = 0; i < mapH; i++, std::getline(file, str)) {
+    getline(file, str);
+    for (int i = 0; i < mapH; i++, getline(file, str)) {
         map[i] = (char*) malloc(sizeof(char) * mapW);
         for (int j = 0; j < mapW; j++) {
             map[i][j] = str[j];
@@ -24,25 +24,32 @@ char** readLevel(std::string name, sf::Vector2i& enter) {
     return map;
 }
 
-int** readWaves(std::string name, int& waves_count) {
-    std::ifstream file(name);
-//    std::string str;
+queue<queue<int>> readWaves(string name) {
+    ifstream file(name);
+    string str;
+    int enemy;
 
-    file >> waves_count;
-    int** waves = (int**) malloc(sizeof(int*) * waves_count);
-    for (size_t i = 0; i < waves_count; ++i) {
-        waves[i] = (int*) malloc(sizeof(int) * 2);
-        file >> waves[i][0] >> waves[i][1];
+    queue<queue<int>> waves;
+
+    while (getline(file, str)) {
+        queue<int> wave;
+        stringstream ss(str);
+
+        while (ss >> enemy) {
+            wave.push(enemy);
+        }
+        waves.push(wave);
     }
+
     return waves;
 }
 
-DIRECTION** readPaths(std::string name) {
-    std::ifstream file(name);
-    std::string str;
+DIRECTION** readPaths(string name) {
+    ifstream file(name);
+    string str;
     DIRECTION** paths = (DIRECTION**) malloc(sizeof(DIRECTION*) * mapH);
-    std::getline(file, str);
-    for (size_t i = 0; i < mapH; i++, std::getline(file, str)) {
+    getline(file, str);
+    for (size_t i = 0; i < mapH; i++, getline(file, str)) {
         paths[i] = (DIRECTION*) malloc(sizeof(DIRECTION) * mapW);
         for (size_t j = 0; j < mapW; j++) {
             switch (str[j]) {

@@ -11,9 +11,9 @@ class Enemy;
 
 class Bullet : public GraphicObject {
 public:
-    int damage = 30;
+    const int damage;
 
-    Bullet(Vector2f start, Enemy* target, TextureManager* texture_manager);
+    Bullet(Vector2f start, Enemy* target, Texture& texture_body, int damage, float velocity);
     bool isReached();
 
     void update(float time);

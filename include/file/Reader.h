@@ -7,12 +7,17 @@
 
 #include <fstream>
 #include <iostream>
+#include <sstream>
 #include <SFML/Graphics.hpp>
+#include <queue>
 #include "../constants/Sizes.h"
 #include "../constants/Directions.h"
 
-char** readLevel(std::string name, sf::Vector2i& enter);
-DIRECTION** readPaths(std::string name);
-int** readWaves(std::string name, int& waves_count);
+using namespace std;
+
+char** readLevel(string name, sf::Vector2i& enter);
+DIRECTION** readPaths(string name);
+
+queue<queue<int>> readWaves(string name);
 
 #endif //CPHW_TD_READER_H

@@ -28,7 +28,7 @@ using namespace sf;
 class GraphicObject {
 public:
     Sprite sprite_body;
-    explicit GraphicObject(Texture& texture_body);
+    explicit GraphicObject(const Texture& texture_body);
 
     Vector2f getPosition();
 protected:

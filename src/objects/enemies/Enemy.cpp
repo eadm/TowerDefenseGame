@@ -4,18 +4,35 @@
 
 #include "../../../include/objects/enemies/Enemy.h"
 
-const Vector2i getTile(int x, int y) {
-    return Vector2i(x / CURRENT_SIZES->tileW, y / CURRENT_SIZES->tileH);
+const Vector2i getTile(float x, float y) {
+    return Vector2i((int)x / CURRENT_SIZES->tileW, (int)y / CURRENT_SIZES->tileH);
 }
 
-Enemy::Enemy(int dx, int dy, TextureManager* texture_manager, Texture& texture_body, unsigned char** distances, DIRECTION** paths) : GraphicObject(texture_body) {
+Enemy::Enemy(int dx, int dy, Texture& texture_body, unsigned char** dist, DIRECTION** p, const unsigned int c, EnemyType et) :
+        GraphicObject(texture_body),
+        price(c),
+        distances(dist),
+        paths(p),
+        enemyType(et) {
+    init(dx, dy);
+}
+
+Enemy::Enemy(int dx, int dy, Enemy const& other) :
+        GraphicObject(*other.sprite_body.getTexture()),
+        price(other.price),
+        distances(other.distances),
+        paths(other.paths),
+        enemyType(other.enemyType) {
+    init(dx, dy);
+    base_health = other.base_health;
+    velocity = other.velocity;
+    initHealth();
+}
+
+void Enemy::init(int dx, int dy) {
     sprite_body.setTextureRect(IntRect(0, 0, CURRENT_SIZES->tileW, CURRENT_SIZES->tileH));
     sprite_body.setPosition((dx + 0.5f) * CURRENT_SIZES->tileW, (dy + 0.5f) * CURRENT_SIZES->tileH);
     sprite_body.setOrigin(CURRENT_SIZES->tileW / 2, CURRENT_SIZES->tileH / 2);
-
-    this->distances = distances;
-    this->paths = paths;
-    this->texture_manager = texture_manager;
 
     this->bullets = new std::vector<Bullet*>();
 }
@@ -51,10 +68,10 @@ void Enemy::rotate(float target_alpha, float time) {
     }
 }
 
-void Enemy::addBullet(Vector2f start) {
-    Bullet* b = new Bullet(start, this, texture_manager);
-    potential_health -= b->damage;
-    bullets->push_back(b);
+void Enemy::addBullet(Bullet* bullet) {
+//    Bullet* b = new Bullet(start, this, bullet_texture);
+    potential_health -= bullet->damage;
+    bullets->push_back(bullet);
 }
 
 void Enemy::update(float time) {
@@ -112,15 +129,13 @@ void Enemy::update(float time) {
 
     sprite_body.move(velocityX * time, velocityY * time);
 
-    for (long i = bullets->size() - 1; i >= 0; i--) { // расчет полета пуль, летящих в танк
-        if (bullets->at(i)->isReached()) {
-
-            health -= bullets->at(i)->damage;
-
-            delete (bullets->at(i));
-            bullets->erase(bullets->begin() + i);
+    for (auto it = bullets->rbegin(); it != bullets->rend(); ++it) {
+        if((*it)->isReached()) {
+            health -= (*it)->damage;
+            delete (*it);
+            bullets->erase(next(it).base());
         } else {
-            bullets->at(i)->update(time);
+            (*it)->update(time);
         }
     }
 

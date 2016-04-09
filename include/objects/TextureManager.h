@@ -17,9 +17,11 @@
 //#include "ResourcePath.hpp"
 
 struct TextureManager {
+    Texture textures[7];
     Texture texture_canon_body,
             texture_canon_barrel,
-            texture_enemy_body,
+            texture_panzer_body,
+            texture_car_body,
             texture_bullet,
             texture_plane1_body;
 

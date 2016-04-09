@@ -1,0 +1,8 @@
+2 --enemy_type
+10 --radius
+1000 --price
+0 --body_texture
+6 --barrel_texture
+4 --bullet_texture
+50 --bullet_damage
+0.015 --bullet_velocity

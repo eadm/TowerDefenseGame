@@ -3,7 +3,7 @@
 //
 #include "../../include/objects/GraphicObject.h"
 
-GraphicObject::GraphicObject(Texture& texture_body) {
+GraphicObject::GraphicObject(const Texture& texture_body) {
     sprite_body.setTexture(texture_body);
 }
 
