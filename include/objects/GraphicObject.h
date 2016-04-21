@@ -14,6 +14,7 @@
 #include <iostream>
 #endif
 
+#include <memory>
 #include "../constants/SizeSettings.h"
 
 #ifndef __MATH__
