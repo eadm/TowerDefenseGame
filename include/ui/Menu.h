@@ -27,9 +27,9 @@ private:
     const static unsigned int wY = 300;
 
     const String fields[2] = {"Resolution", "Level "};
-    const int sizes[2] = {3, 1};
+    const int sizes[2] = {3, 2};
     int positions[2] = {0, 0};
-    const String values[2][3] = {{"1536x1536", "1024x1024", "768x768"}, {"01"}};
+    const String values[2][3] = {{"1536x1536", "1024x1024", "768x768"}, {"01", "02"}};
     const String start_button = "Start";
 };
 

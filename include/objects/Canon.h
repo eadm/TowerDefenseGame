@@ -36,7 +36,7 @@ public:
 
     Sprite sprite_barrel;
 
-    Canon(int x, int y, TextureManager*, vector<Enemy*>*,
+    Canon(int x, int y, TextureManager*, vector<shared_ptr<Enemy>>*,
           size_t price = 0,
           EnemyType = EnemyType::MIXED,
           int radius = 10,
@@ -46,15 +46,15 @@ public:
           int body_texture = 0,
           int barrel_texture = 1);
 
-    static Canon* fromFile(int x, int y, TextureManager*, vector<Enemy*>*, string);
+    static Canon* fromFile(int x, int y, TextureManager*, vector<shared_ptr<Enemy>>*, string);
 
     Canon(int x, int y, Canon const&);
 
-    void setTarget(Enemy* target);
+    void setTarget(weak_ptr<Enemy> target);
 
     void setAim(Vector2f aim);
 
-    void shoot(Enemy* enemy);
+    void shoot(shared_ptr<Enemy> enemy);
 
     void update(float time);
 private:
@@ -75,9 +75,10 @@ private:
     const float bullet_velocity;
     const int bullet_texture;
 
-    Enemy* target;
+    weak_ptr<Enemy> target_ptr;
+    shared_ptr<Enemy> getTargetPtr();
 
-    const vector<Enemy*>* enemies;
+    const vector<shared_ptr<Enemy>>* enemies;
 };
 
 

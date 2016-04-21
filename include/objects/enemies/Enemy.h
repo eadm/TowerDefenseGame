@@ -46,7 +46,7 @@ public:
 
     const unsigned int price;
 
-    std::vector<Bullet*>* bullets;
+    vector<Bullet*>* bullets;
 private:
     void init(int dx, int dy);
 

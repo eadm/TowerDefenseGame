@@ -24,6 +24,7 @@
 #endif
 
 using namespace sf;
+using namespace std;
 
 class GraphicObject {
 public:

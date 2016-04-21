@@ -5,7 +5,7 @@
 #include "../../include/objects/Canon.h"
 
 
-Canon::Canon(int dx, int dy, TextureManager* tm, vector<Enemy*>* enemies, size_t c, EnemyType type,
+Canon::Canon(int dx, int dy, TextureManager* tm, vector<shared_ptr<Enemy>>* enemies, size_t c, EnemyType type,
              int r, int d, float velocity, int bullet_t, int body_t, int barrel_t):
         GraphicObject(tm->textures[body_t]),
         rect(dx, dy, CURRENT_SIZES->tileW, CURRENT_SIZES->tileH),
@@ -20,7 +20,7 @@ Canon::Canon(int dx, int dy, TextureManager* tm, vector<Enemy*>* enemies, size_t
     init(dx, dy, texture_manager->textures[barrel_t]);
 }
 
-Canon* Canon::fromFile(int x, int y, TextureManager* tm, vector<Enemy*>* enemies, string name) {
+Canon* Canon::fromFile(int x, int y, TextureManager* tm, vector<shared_ptr<Enemy>>* enemies, string name) {
     ifstream file(name);
 
     int enemy_type;
@@ -76,12 +76,10 @@ void Canon::init(int dx, int dy, const Texture &barrel_texture) {
     sprite_barrel.setOrigin(CURRENT_SIZES->tileW / 2, CURRENT_SIZES->tileH / 2);
     sprite_barrel.setRotation(alpha);
     sprite_barrel.setTextureRect(IntRect(0, 0, CURRENT_SIZES->tileW, CURRENT_SIZES->tileH));
-
-    target = nullptr;
 }
 
-void Canon::setTarget(Enemy* target) {
-    this->target = target;
+void Canon::setTarget(weak_ptr<Enemy> target) {
+    this->target_ptr = target;
 }
 
 void Canon::setAim(Vector2f aim) {
@@ -91,13 +89,23 @@ void Canon::setAim(Vector2f aim) {
     alpha = tmp_alpha > 0 ? tmp_alpha : 360.0f + tmp_alpha;
 }
 
-void Canon::shoot(Enemy* enemy) {
+void Canon::shoot(shared_ptr<Enemy> enemy) {
     if (enemy == nullptr) return;
     shoot_cool_down = base_shoot_cool_down;
     enemy->addBullet(new Bullet(sprite_barrel.getPosition(), enemy, texture_manager->textures[bullet_texture], damage, bullet_velocity));
 }
 
+shared_ptr<Enemy> Canon::getTargetPtr() {
+    if (auto target = target_ptr.lock()) {
+        return target;
+    } else {
+        return nullptr;
+    }
+}
+
 void Canon::update(float time) {
+    auto target = getTargetPtr();
+
     if (target != nullptr && (!target->isTarget() || getDistance(target->getPosition()) > radius)) {
         target = nullptr;
     }
@@ -130,17 +138,17 @@ void Canon::update(float time) {
 }
 
 void Canon::chooseTarget() {
-    Enemy* t = nullptr;
+    weak_ptr<Enemy> t;
     for (size_t i = 0; i < enemies->size(); i++) {                          // ищем врага, который в нашем радиусе и ближе к выходу
         if ((enemyType == MIXED || enemies->at(i)->enemyType == enemyType)  // можем ли стрелять в этот тип врагов
             && enemies->at(i)->isTarget()                                   // жив ли враг
             && getDistance(enemies->at(i)->getPosition()) < radius) {       // достаем ли мы до врага
-            if (t == nullptr) {
-                t = enemies->at(i);
-            } else {
-                if (t->getDistanceToExit() > enemies->at(i)->getDistanceToExit()) {
+            if (auto tt = t.lock()) {
+                if (tt->getDistanceToExit() > enemies->at(i)->getDistanceToExit()) {
                     t = enemies->at(i);
                 }
+            } else {
+                t = enemies->at(i);
             }
         }
     }

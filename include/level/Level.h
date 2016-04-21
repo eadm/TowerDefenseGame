@@ -58,11 +58,14 @@ private:
 
     TextureManager *texture_manager;
 
+    void drawHelper(Text& text);
+    void drawButton(float, float, Text& text, string, string);
+
     void drawMap(Vector2i hoveredTile);
     void drawEnemies(float time);
     void drawCanons(float time);
 
-    vector<Enemy*> enemies;
+    vector<shared_ptr<Enemy>> enemies;
     vector<Canon> canons;
 
     long long money = 5000;

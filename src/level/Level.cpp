@@ -109,7 +109,8 @@ void Level::start() {
         }
 
         if (enemy_cool_down <= time && !current_wave.empty()) {
-            enemies.push_back(new Enemy(enter.x, enter.y, *available_enemies[current_wave.front()]));
+            shared_ptr<Enemy> ptr(new Enemy(enter.x, enter.y, *available_enemies[current_wave.front()]));
+            enemies.push_back(ptr);
             current_wave.pop();
             enemy_cool_down = enemy_base_cool_down;
         } else {
@@ -194,8 +195,50 @@ void Level::start() {
         text.setString("Lives: " + std::to_string(lives));
         window.draw(text);
 
+        if (pause) drawHelper(text);
+
         window.display();
     }
+}
+
+void Level::drawHelper(Text& text) {
+//    window.c
+    RectangleShape rect;
+    rect.setFillColor(Color(25, 52, 65, 220));
+    rect.setSize(Vector2f(CURRENT_SIZES->windowX, CURRENT_SIZES->windowY));
+    rect.setPosition(0, 0);
+    window.draw(rect);
+
+    rectangle.setFillColor(Color::White);
+    drawButton(50, 50, text, "[", " - slow down time");
+    drawButton(50, 120, text, "]", " - speed up time");
+    drawButton(50, 190, text, "P", " - pause game");
+    
+    drawButton(50, 330, text, "1", " - canon for ground targets [price: " + to_string(available_canons[0]->price) + "]");
+    drawButton(50, 400, text, "2", " - canon for air targets [price: " + to_string(available_canons[1]->price) + "]");
+
+
+//    te
+//    rect.set
+//    window.clear(Color(243, 255, 226, 120));
+    text.setOrigin(0, 0);
+}
+
+void Level::drawButton(float x, float y, Text &text, string button, string description) {
+    rectangle.setPosition(x - CURRENT_SIZES->tileW / 2, y - CURRENT_SIZES->tileH / 2);
+    window.draw(rectangle);
+
+    text.setColor(Color::Black);
+    text.setPosition(x, y);
+    text.setString(button);
+    text.setOrigin(text.getGlobalBounds().width / 2, text.getGlobalBounds().height / 2 + 6 / CURRENT_SIZES->multiplier);
+    window.draw(text);
+
+    text.setColor(Color::White);
+    text.setPosition(x + CURRENT_SIZES->tileW, y);
+    text.setString(description);
+    text.setOrigin(0, text.getGlobalBounds().height / 2 + 6 / CURRENT_SIZES->multiplier);
+    window.draw(text);
 }
 
 void Level::drawMap(Vector2i hoveredTile) {
@@ -247,7 +290,6 @@ void Level::drawEnemies(float time) {
                 lives--;
                 if (lives == 0) failed();
             }
-            delete (*it);
             enemies.erase(next(it).base());
         } else {
             (*it)->update(time);

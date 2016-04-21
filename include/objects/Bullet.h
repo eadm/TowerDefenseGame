@@ -13,7 +13,7 @@ class Bullet : public GraphicObject {
 public:
     const int damage;
 
-    Bullet(Vector2f start, Enemy* target, Texture& texture_body, int damage, float velocity);
+    Bullet(Vector2f start, shared_ptr<Enemy> target, Texture& texture_body, int damage, float velocity);
     bool isReached();
 
     void update(float time);
@@ -27,7 +27,7 @@ private:
     float velocityX = 0, velocityY = 0;
     float time_to_target = 0;
 
-    Enemy* target;
+    weak_ptr<Enemy> target_ptr;
 };
 
 
