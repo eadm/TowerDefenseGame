@@ -210,14 +210,21 @@ void Level::drawHelper(Text& text) {
     window.draw(rect);
 
     rectangle.setFillColor(Color::White);
-    drawButton(50, 50, text, "[", " - slow down time");
-    drawButton(50, 120, text, "]", " - speed up time");
-    drawButton(50, 190, text, "P", " - pause game");
-    
-    drawButton(50, 330, text, "1", " - canon for ground targets [price: " + to_string(available_canons[0]->price) + "]");
-    drawButton(50, 400, text, "2", " - canon for air targets [price: " + to_string(available_canons[1]->price) + "]");
 
+    int top = -20;
+    drawButton(50, top += 70, text, "Esc", " - exit level");
+    drawButton(50, top += 70, text, "[", " - slow down time");
+    drawButton(50, top += 70, text, "]", " - speed up time");
+    drawButton(50, top += 70, text, "P", " - pause game");
 
+    drawButton(50, top += 140, text, "1", " - canon for ground targets [price: " + to_string(available_canons[0]->price) + "]");
+    drawButton(50, top += 70, text, "2", " - canon for air targets [price: " + to_string(available_canons[1]->price) + "]");
+
+    text.setString("Press P to continue");
+    text.setPosition(50, top += 140);
+//    text.setT
+    text.setOrigin(0, text.getGlobalBounds().height / 2 + 6 / CURRENT_SIZES->multiplier);
+    window.draw(text);
 //    te
 //    rect.set
 //    window.clear(Color(243, 255, 226, 120));

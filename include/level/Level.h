@@ -31,7 +31,7 @@ private:
     void failed();
     void succeed();
 
-    bool pause = false;
+    bool pause = true;
 
     void init();
     void initWindow();
