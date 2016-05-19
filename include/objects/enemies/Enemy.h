@@ -28,24 +28,59 @@ enum EnemyType {
 
 class Enemy : public GraphicObject {
 public:
+    /**
+     * Creates new enemy at position dx dy
+     */
     Enemy(int dx, int dy, Texture& texture_body, unsigned char** distances, DIRECTION** paths,
           const unsigned int c = 0, EnemyType e = GROUND);
+    /**
+     * Creates new enemy from another enemy. New one will be copy of given one.
+     */
     Enemy(int dx, int dy, Enemy const&);
 
+    /**
+     * Destructs object and cleans memory
+     */
     ~Enemy();
+
+    /**
+     * Counts distance from current object to map exit
+     */
     unsigned char getDistanceToExit();
 
+    /**
+     * Returns true if potential health above 0
+     */
     bool isTarget();
+
+    /**
+     * Returns true if health below or equal 0
+     */
     bool isDead();
 
+    /**
+     * Constant represents EnemyType of current object
+     */
     const EnemyType enemyType;
 
+    /**
+     * Recount all physics with given time
+     */
     void update(float time);
 
+    /**
+     * Adds a bullet flying to current object
+     */
     void addBullet(Bullet*);
 
+    /**
+     * Constant represents price of current EnemyType
+     */
     const unsigned int price;
 
+    /**
+     * Vector of bullets flying to current object
+     */
     vector<Bullet*>* bullets;
 private:
     void init(int dx, int dy);

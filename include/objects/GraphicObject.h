@@ -29,12 +29,26 @@ using namespace std;
 
 class GraphicObject {
 public:
+    /**
+     * Sprite of current object
+     */
     Sprite sprite_body;
     explicit GraphicObject(const Texture& texture_body);
 
+    /**
+     * Returns vector that contains current position of object
+     */
     Vector2f getPosition();
 protected:
+
+    /**
+     * Returns distance from current object to given one
+     */
     float getDistance(Vector2f target);
+
+    /**
+     * Returns direction in which object should rotate to reach specified angle
+     */
     int getDirection(float cur_alpha, float dif_alpha, float alpha);
 };
 

@@ -30,12 +30,27 @@ using namespace std;
 
 class Canon : public GraphicObject {
 public:
+    /**
+     * Constant represent price of current canon type
+     */
     const size_t price;
+
+
     const FloatRect rect;
+
+    /**
+     * Constant represents radius where canon could shoot targets
+     */
     const int radius;
 
+    /**
+     * Sprite of current canon barrel
+     */
     Sprite sprite_barrel;
 
+    /**
+     * Creates new canon object
+     */
     Canon(int x, int y, TextureManager*, vector<shared_ptr<Enemy>>*,
           size_t price = 0,
           EnemyType = EnemyType::MIXED,
@@ -46,20 +61,38 @@ public:
           int body_texture = 0,
           int barrel_texture = 1);
 
+    /**
+     * Creates new canon object that takes its properties from given file
+     */
     static Canon* fromFile(int x, int y, TextureManager*, vector<shared_ptr<Enemy>>*, string);
 
+    /**
+     * Creates new canon object that will be copy of given one
+     */
     Canon(int x, int y, Canon const&);
 
+    /**
+     * Sets new target for current canon
+     */
     void setTarget(weak_ptr<Enemy> target);
 
+    /**
+     * Rotate canon barrel towards to enemy
+     */
     void setAim(Vector2f aim);
 
+    /**
+     * Shoot a bullet to specified enemy
+     */
     void shoot(shared_ptr<Enemy> enemy);
 
+    /**
+     * Recount all physics with given time
+     */
     void update(float time);
 private:
     void init(int x, int y, const Texture& barrel_texture);
-    
+
     const EnemyType enemyType;
     void chooseTarget();
 

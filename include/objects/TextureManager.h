@@ -16,6 +16,9 @@
 
 //#include "ResourcePath.hpp"
 
+/**
+ * Structure that contains all loaded textures
+ */
 struct TextureManager {
     Texture textures[7];
     Texture texture_canon_body,

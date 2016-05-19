@@ -20,10 +20,16 @@ using namespace std;
 
 class Level {
 public:
+    /**
+     * Creates new level with given name. Info about level will be loaded from files with name prefix.
+     */
     Level(string name);
 
     ~Level();
 
+    /**
+     * Starts new level
+     */
     void start();
 private:
     const float getDistance(Vector2f a, Vector2f b);

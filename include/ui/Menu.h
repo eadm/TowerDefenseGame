@@ -13,12 +13,21 @@
 
 using namespace sf;
 
+/**
+ * Return true if specified pos contains in given rect
+ */
 bool contains(RectangleShape &rect, Vector2f &pos);
 
 class Menu {
 public:
+    /**
+     * Creates new menu objects
+     */
     Menu();
 
+    /**
+     * Starts menu drawing
+     */
     void start();
 private:
     RenderWindow window;

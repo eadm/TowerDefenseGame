@@ -9,6 +9,9 @@
 #include <SFML/Graphics.hpp>
 #endif
 
+/**
+ * Constants represents map colors
+ */
 namespace LevelColors {
     extern sf::Color
             B, // border

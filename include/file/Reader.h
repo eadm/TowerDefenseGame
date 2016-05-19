@@ -15,9 +15,19 @@
 
 using namespace std;
 
+/**
+ * Reads level from file
+ */
 char** readLevel(string name, sf::Vector2i& enter);
+
+/**
+ * Reads paths from file
+ */
 DIRECTION** readPaths(string name);
 
+/**
+ * Reads waves from file
+ */
 queue<queue<int>> readWaves(string name);
 
 #endif //CPHW_TD_READER_H

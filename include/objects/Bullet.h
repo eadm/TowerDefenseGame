@@ -11,11 +11,24 @@ class Enemy;
 
 class Bullet : public GraphicObject {
 public:
+    /**
+     * Constant represents damage will be dealed to target
+     */
     const int damage;
 
+    /**
+     * Creates new bullet that flyes from start to given target with specified velocity and deals specified damage
+     */
     Bullet(Vector2f start, shared_ptr<Enemy> target, Texture& texture_body, int damage, float velocity);
+
+    /**
+     * Returns true if bullet reached target
+     */
     bool isReached();
 
+    /**
+     * Recount all physics with given time
+     */
     void update(float time);
 
 private:

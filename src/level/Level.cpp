@@ -202,7 +202,6 @@ void Level::start() {
 }
 
 void Level::drawHelper(Text& text) {
-//    window.c
     RectangleShape rect;
     rect.setFillColor(Color(25, 52, 65, 220));
     rect.setSize(Vector2f(CURRENT_SIZES->windowX, CURRENT_SIZES->windowY));
@@ -222,12 +221,9 @@ void Level::drawHelper(Text& text) {
 
     text.setString("Press P to continue");
     text.setPosition(50, top += 140);
-//    text.setT
     text.setOrigin(0, text.getGlobalBounds().height / 2 + 6 / CURRENT_SIZES->multiplier);
     window.draw(text);
-//    te
-//    rect.set
-//    window.clear(Color(243, 255, 226, 120));
+
     text.setOrigin(0, 0);
 }
 
